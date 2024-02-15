@@ -1,6 +1,7 @@
 package com.rewcode.blog.controller;
 
 import com.rewcode.blog.payload.PostDto;
+
 import com.rewcode.blog.payload.PostResponse;
 import com.rewcode.blog.service.PostService;
 import com.rewcode.blog.utils.AppConstants;
@@ -35,11 +36,12 @@ public class PostController {
         return ResponseEntity.ok(postResponse);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public  ResponseEntity<PostDto> getPostById(@PathVariable Long id){
         PostDto postDto = postService.getPostById(id);
         return ResponseEntity.ok(postDto);
     }
+
 
     @PutMapping("/{id}")
     public  ResponseEntity<PostDto> updatePost(@PathVariable Long id,  @RequestBody PostDto postDto){
