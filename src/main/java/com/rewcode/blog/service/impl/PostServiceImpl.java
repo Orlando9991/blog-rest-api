@@ -4,8 +4,13 @@ import com.rewcode.blog.entity.Post;
 import com.rewcode.blog.exception.ResourceNotFoundException;
 import com.rewcode.blog.mapper.PostMapper;
 import com.rewcode.blog.payload.PostDto;
+import com.rewcode.blog.payload.PostResponse;
 import com.rewcode.blog.repository.PostRepository;
 import com.rewcode.blog.service.PostService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,10 +33,29 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPosts() {
-        return postRepository.findAll().stream()
-                .map(post -> PostMapper.converToPostDto(post))
-                .collect(Collectors.toList());
+    public PostResponse getAllPosts(int pageNumber, int pageSize, String sortBy, String sortDirection) {
+
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.DESC.name()) ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        //Create Pageable instance
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Post> pagePost = postRepository.findAll(pageable);
+        //Get content from page object
+        List<Post> postList = pagePost.getContent();
+
+        List<PostDto> postDtoList = postList.stream().map(post -> PostMapper.converToPostDto(post)).collect(Collectors.toList());
+
+        PostResponse postResponse = PostResponse.builder()
+                .content(postDtoList)
+                .pageSize(pageSize)
+                .pageNo(pageNumber)
+                .totalElements(pagePost.getSize())
+                .totalPages(pagePost.getTotalPages())
+                .last(pagePost.isLast())
+                .build();
+
+        return postResponse;
     }
 
     @Override
