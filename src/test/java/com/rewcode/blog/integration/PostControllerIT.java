@@ -67,10 +67,10 @@ public class PostControllerIT {
     }
 
 
-    @DisplayName("Integration test for get all Posts request")
+    @DisplayName("Integration test for get all Posts with default query params request")
     @Test
     @Rollback
-    public void givenPostsList_whenGetAllPosts_thenReturnPostsList() throws Exception {
+    public void givenPostsListWithDefaults_whenGetAllPosts_thenReturnPostsResponse() throws Exception {
         //given - precondition or setup
         PostDto postDtoExample2 = new PostDto();
         postDtoExample2.setTitle("Title demo 2");
@@ -84,7 +84,72 @@ public class PostControllerIT {
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.last", CoreMatchers.is(true)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(1)))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("Integration test for get all Posts with default query params request")
+    @Test
+    @Rollback
+    public void givenPostsListPaginationAndSize_whenGetAllPosts_thenReturnPostsResponse() throws Exception {
+        //given - precondition or setup
+        PostDto postDtoExample2 = new PostDto();
+        postDtoExample2.setTitle("Title demo 2");
+        postDtoExample2.setDescription("Description demo 2");
+        postDtoExample2.setContent("Content demo 2");
+
+        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+
+        //when - action ir the behaviour we are going to test
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0"));
+
+        //then  - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.last", CoreMatchers.is(false)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.totalPages", CoreMatchers.is(2)))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("Integration test for get all Posts with default query params request")
+    @Test
+    @Rollback
+    public void givenPostsListPaginationSizeSortBy_whenGetAllPosts_thenReturnPostsResponse() throws Exception {
+        //given - precondition or setup
+        PostDto postDtoExample2 = new PostDto();
+        postDtoExample2.setTitle("Demo Title 2");
+        postDtoExample2.setDescription("Description demo 2");
+        postDtoExample2.setContent("Content demo 2");
+
+        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+
+        //when - action ir the behaviour we are going to test
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title"));
+
+        //then  - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title", CoreMatchers.is(postDtoExample2.getTitle())))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @DisplayName("Integration test for get all Posts with default query params request")
+    @Test
+    @Rollback
+    public void givenPostsListPaginationSizeSortBySortDir_whenGetAllPosts_thenReturnPostsResponse() throws Exception {
+        //given - precondition or setup
+        PostDto postDtoExample2 = new PostDto();
+        postDtoExample2.setTitle("Demo Title 2");
+        postDtoExample2.setDescription("Description demo 2");
+        postDtoExample2.setContent("Content demo 2");
+
+        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+
+        //when - action ir the behaviour we are going to test
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title&sortDir=desc"));
+
+        //then  - verify the output
+        response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].title", CoreMatchers.is(postDtoExample.getTitle())))
                 .andDo(MockMvcResultHandlers.print());
     }
 
