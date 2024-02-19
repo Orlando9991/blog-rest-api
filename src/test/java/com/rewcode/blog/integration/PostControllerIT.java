@@ -37,6 +37,9 @@ public class PostControllerIT {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private PostMapper postMapper;
+
     private PostDto postDtoExample;
 
     @BeforeEach
@@ -77,7 +80,7 @@ public class PostControllerIT {
         postDtoExample2.setDescription("Description demo 2");
         postDtoExample2.setContent("Content demo 2");
 
-        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+        postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts"));
@@ -99,7 +102,7 @@ public class PostControllerIT {
         postDtoExample2.setDescription("Description demo 2");
         postDtoExample2.setContent("Content demo 2");
 
-        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+        postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0"));
@@ -121,10 +124,10 @@ public class PostControllerIT {
         postDtoExample2.setDescription("Description demo 2");
         postDtoExample2.setContent("Content demo 2");
 
-        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+        postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title&sortDirection=asc"));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -142,10 +145,10 @@ public class PostControllerIT {
         postDtoExample2.setDescription("Description demo 2");
         postDtoExample2.setContent("Content demo 2");
 
-        postRepository.saveAll(List.of(PostMapper.convertToPost(postDtoExample), PostMapper.convertToPost(postDtoExample2)));
+        postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title&sortDir=desc"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0"));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -159,7 +162,7 @@ public class PostControllerIT {
     public void givenPostId_whenGetPostById_thenReturnPost() throws Exception {
         //given - precondition or setup
 
-        Post savedPost = postRepository.save(PostMapper.convertToPost(postDtoExample));
+        Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{id}", savedPost.getId()));
@@ -192,9 +195,9 @@ public class PostControllerIT {
     @Rollback
     public void givenPostIdAndPost_whenUpdatePost_thenReturnUpdatedPost() throws Exception {
         //given - precondition or setup
-        Post savedPost = postRepository.save(PostMapper.convertToPost(postDtoExample));
+        Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
-        PostDto updatedPost = PostMapper.converToPostDto(savedPost);
+        PostDto updatedPost = postMapper.converToPostDto(savedPost);
         updatedPost.setTitle("updated title");
         updatedPost.setDescription("updated description");
         updatedPost.setContent("updated content");
@@ -219,9 +222,9 @@ public class PostControllerIT {
         //given - precondition or setup
         Long incorrectId = -1L;
 
-        Post savedPost = postRepository.save(PostMapper.convertToPost(postDtoExample));
+        Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
-        PostDto updatedPost = PostMapper.converToPostDto(savedPost);
+        PostDto updatedPost = postMapper.converToPostDto(savedPost);
         updatedPost.setTitle("updated title");
         updatedPost.setDescription("updated description");
         updatedPost.setContent("updated content");
@@ -241,7 +244,7 @@ public class PostControllerIT {
     @Rollback
     public void givenPostId_whenDeletePostById_thenReturnSuccessfullyString() throws Exception {
         //given - precondition or setup
-        Post savedPost = postRepository.save(PostMapper.convertToPost(postDtoExample));
+        Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", savedPost.getId()));
@@ -257,7 +260,7 @@ public class PostControllerIT {
     public void givenPostId_whenDeletePostById_thenReturnNotFound() throws Exception {
         //given - precondition or setup
         Long incorrectId = -1L;
-        postRepository.save(PostMapper.convertToPost(postDtoExample));
+        postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", incorrectId));

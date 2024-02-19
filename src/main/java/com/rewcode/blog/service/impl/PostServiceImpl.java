@@ -19,17 +19,19 @@ import java.util.stream.Collectors;
 @Service
 public class PostServiceImpl implements PostService {
     private PostRepository postRepository;
+    private PostMapper postMapper;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    public PostServiceImpl(PostRepository postRepository, PostMapper postMapper) {
         this.postRepository = postRepository;
+        this.postMapper = postMapper;
     }
 
     @Override
     public PostDto createPost(PostDto postDto) {
-        Post post = PostMapper.convertToPost(postDto);
+        Post post = postMapper.convertToPost(postDto);
         Post savedPost = postRepository.save(post);
 
-        return  PostMapper.converToPostDto(savedPost);
+        return  postMapper.converToPostDto(savedPost);
     }
 
     @Override
@@ -44,7 +46,7 @@ public class PostServiceImpl implements PostService {
         //Get content from page object
         List<Post> postList = pagePost.getContent();
 
-        List<PostDto> postDtoList = postList.stream().map(post -> PostMapper.converToPostDto(post)).collect(Collectors.toList());
+        List<PostDto> postDtoList = postList.stream().map(post -> postMapper.converToPostDto(post)).collect(Collectors.toList());
 
         PostResponse postResponse = PostResponse.builder()
                 .content(postDtoList)
@@ -62,7 +64,7 @@ public class PostServiceImpl implements PostService {
     public PostDto getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("Post", "id", id));
-        return PostMapper.converToPostDto(post);
+        return postMapper.converToPostDto(post);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class PostServiceImpl implements PostService {
 
         Post updatedPost = postRepository.save(post);
 
-        return PostMapper.converToPostDto(updatedPost);
+        return postMapper.converToPostDto(updatedPost);
     }
 
     @Override
@@ -85,6 +87,4 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(()-> new ResourceNotFoundException("Post", "id", id));
         postRepository.delete(post);
     }
-
-
 }

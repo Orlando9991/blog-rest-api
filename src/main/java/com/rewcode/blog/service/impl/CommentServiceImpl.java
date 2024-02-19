@@ -20,19 +20,20 @@ public class CommentServiceImpl implements CommentService {
 
     private PostRepository postRepository;
     private CommentRepository commentRepository;
+    private CommentMapper commentMapper;
     @Override
     public CommentDto createComment(Long postId, CommentDto commentDto) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        Comment comment = CommentMapper.convertToComment(commentDto, post);
+        Comment comment = commentMapper.convertToComment(commentDto, post);
         Comment savedComment = commentRepository.save(comment);
-        return CommentMapper.convertToCommentDto(savedComment);
+        return commentMapper.convertToCommentDto(savedComment);
     }
 
     @Override
     public List<CommentDto> getCommentsByPostId(Long postId) {
         List<Comment> postList = commentRepository.findByPostId(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
         return postList.stream()
-                .map((comment -> CommentMapper.convertToCommentDto(comment)))
+                .map((comment -> commentMapper.convertToCommentDto(comment)))
                 .collect(Collectors.toList());
     }
 
@@ -44,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findByPostIdAndId(postId,commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment", "id", commentId));
 
-        return CommentMapper.convertToCommentDto(comment);
+        return commentMapper.convertToCommentDto(comment);
     }
 
     @Override
@@ -58,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
 
         Comment updatedComment = commentRepository.save(comment);
 
-        return CommentMapper.convertToCommentDto(updatedComment);
+        return commentMapper.convertToCommentDto(updatedComment);
     }
 
     @Override
