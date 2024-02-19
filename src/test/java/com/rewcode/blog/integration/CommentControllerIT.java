@@ -41,7 +41,7 @@ public class CommentControllerIT {
 
     @Autowired
     private CommentMapper commentMapper;
-
+  
     private CommentDto sampleCommentDto;
     private Post samplePost;
 
@@ -152,9 +152,10 @@ public class CommentControllerIT {
     public void givenPostIdCommentIdAndComment_whenUpdateComment_thenReturnUpdatedComment() throws Exception {
         //given - precondition or setup
         Post savedPost = postRepository.save(samplePost);
-        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
 
+        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
         CommentDto updatedCommentDto = commentMapper.convertToCommentDto(savedComment);
+      
         updatedCommentDto.setName("Name2");
         updatedCommentDto.setBody("Body2");
         updatedCommentDto.setEmail("Email2");
