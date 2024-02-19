@@ -4,6 +4,7 @@ import com.rewcode.blog.payload.PostDto;
 import com.rewcode.blog.payload.PostResponse;
 import com.rewcode.blog.service.PostService;
 import com.rewcode.blog.utils.AppConstants;
+import jakarta.validation.Valid;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class PostController {
         this.postService = postService;
     }
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto){
+    public ResponseEntity<PostDto> createPost(@RequestBody @Valid PostDto postDto){
         PostDto savedPost = postService.createPost(postDto);
         return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
     }
@@ -42,7 +43,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
-    public  ResponseEntity<PostDto> updatePost(@PathVariable Long id,  @RequestBody PostDto postDto){
+    public  ResponseEntity<PostDto> updatePost(@PathVariable Long id,  @RequestBody @Valid PostDto postDto){
         PostDto updatedPostDto = postService.updatePost(id, postDto);
         return ResponseEntity.ok(updatedPostDto);
     }

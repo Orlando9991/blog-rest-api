@@ -2,8 +2,8 @@ package com.rewcode.blog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NotFound;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Getter

@@ -2,6 +2,7 @@ package com.rewcode.blog.controller;
 
 import com.rewcode.blog.payload.CommentDto;
 import com.rewcode.blog.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<CommentDto> createComment(@PathVariable Long postId, @RequestBody CommentDto commentDto){
+    public ResponseEntity<CommentDto> createComment(@PathVariable Long postId, @RequestBody @Valid CommentDto commentDto){
         CommentDto savedCommentId = commentService.createComment(postId, commentDto);
         return new ResponseEntity(savedCommentId, HttpStatus.CREATED);
     }
@@ -37,7 +38,7 @@ public class CommentController {
     @PutMapping("/{id}")
     public ResponseEntity<CommentDto> updateComment(@PathVariable Long postId,
                                                         @PathVariable("id") Long commentId,
-                                                        @RequestBody CommentDto commentDto ){
+                                                        @RequestBody @Valid CommentDto commentDto ){
         CommentDto updatedCommentDto = commentService.updateComment(postId, commentId, commentDto);
         return ResponseEntity.ok(updatedCommentDto);
     }
