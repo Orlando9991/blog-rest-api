@@ -28,9 +28,9 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PostResponse> getAllPostsPagination(@RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int pageSize,
-                                                              @RequestParam(value = AppConstants.DEFAULT_PAGE_NUMBER, defaultValue = "0") int pageNumber,
-                                                              @RequestParam(value = AppConstants.DEFAULT_PAGE_SORT_BY_FIELD, defaultValue = "id", required = false) String sortBy,
-                                                              @RequestParam(value = AppConstants.DEFAULT_PAGE_SORT_DIRECTION, defaultValue = "asc", required = false) String sortDirection){
+                                                              @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int pageNumber,
+                                                              @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SORT_BY_FIELD, required = false) String sortBy,
+                                                              @RequestParam(defaultValue = AppConstants.DEFAULT_PAGE_SORT_DIRECTION, required = false) String sortDirection){
         PostResponse postResponse = postService.getAllPosts(pageNumber, pageSize, sortBy, sortDirection);
         return ResponseEntity.ok(postResponse);
     }

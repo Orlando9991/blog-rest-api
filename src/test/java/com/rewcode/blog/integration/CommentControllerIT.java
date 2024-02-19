@@ -39,6 +39,9 @@ public class CommentControllerIT {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
+    private CommentMapper commentMapper;
+
     private CommentDto sampleCommentDto;
     private Post samplePost;
 
@@ -87,7 +90,7 @@ public class CommentControllerIT {
         anotherComment.setBody("Body2");
         anotherComment.setPost(savedPost);
 
-        commentRepository.saveAll(List.of(CommentMapper.convertToComment(sampleCommentDto, savedPost), anotherComment));
+        commentRepository.saveAll(List.of(commentMapper.convertToComment(sampleCommentDto, savedPost), anotherComment));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{postId}/comments",savedPost.getId()));
@@ -103,7 +106,7 @@ public class CommentControllerIT {
     public void givenPostIdAndCommentId_whenGetCommentById_thenReturnComment() throws Exception {
         //given - precondition or setup
         Post savedPost = postRepository.save(samplePost);
-        Comment savedComment = commentRepository.save(CommentMapper.convertToComment(sampleCommentDto, savedPost));
+        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
@@ -131,7 +134,7 @@ public class CommentControllerIT {
         Post savedPost = postRepository.save(samplePost);
         Post savedPost2 = postRepository.save(anotherPost);
 
-        Comment savedComment = commentRepository.save(CommentMapper.convertToComment(sampleCommentDto, savedPost));
+        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
@@ -149,9 +152,9 @@ public class CommentControllerIT {
     public void givenPostIdCommentIdAndComment_whenUpdateComment_thenReturnUpdatedComment() throws Exception {
         //given - precondition or setup
         Post savedPost = postRepository.save(samplePost);
-        Comment savedComment = commentRepository.save(CommentMapper.convertToComment(sampleCommentDto, savedPost));
+        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
 
-        CommentDto updatedCommentDto = CommentMapper.convertToCommentDto(savedComment);
+        CommentDto updatedCommentDto = commentMapper.convertToCommentDto(savedComment);
         updatedCommentDto.setName("Name2");
         updatedCommentDto.setBody("Body2");
         updatedCommentDto.setEmail("Email2");
@@ -177,7 +180,7 @@ public class CommentControllerIT {
     public void givenPostIdAndCommentId_whenDeleteComment_thenReturnSuccessString() throws Exception {
         //given - precondition or setup
         Post savedPost = postRepository.save(samplePost);
-        Comment savedComment = commentRepository.save(CommentMapper.convertToComment(sampleCommentDto, savedPost));
+        Comment savedComment = commentRepository.save(commentMapper.convertToComment(sampleCommentDto, savedPost));
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
@@ -202,7 +205,4 @@ public class CommentControllerIT {
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
-
-
-
 }

@@ -2,22 +2,20 @@ package com.rewcode.blog.mapper;
 
 import com.rewcode.blog.payload.PostDto;
 import com.rewcode.blog.entity.Post;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PostMapper {
-    public static Post convertToPost(PostDto postDto){
-        Post post = new Post();
-        post.setTitle(postDto.getTitle());
-        post.setDescription(postDto.getDescription());
-        post.setContent(postDto.getContent());
-        return post;
+
+    @Autowired
+    private ModelMapper modelMapper;
+    public Post convertToPost(PostDto postDto){
+        return modelMapper.map(postDto, Post.class);
     }
 
-    public static PostDto converToPostDto(Post post){
-        PostDto postDto = new PostDto();
-        postDto.setId(post.getId());
-        postDto.setTitle(post.getTitle());
-        postDto.setDescription(post.getDescription());
-        postDto.setContent(post.getContent());
-        return postDto;
+    public PostDto converToPostDto(Post post){
+        return modelMapper.map(post, PostDto.class);
     }
 }
