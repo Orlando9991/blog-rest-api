@@ -23,13 +23,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 @AutoConfigureMockMvc
 public class CommentControllerIT {
 
+    private final String AUTH_KEY = "Authorization";
+    private final String AUTH_TYPE = "Basic";
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -45,12 +50,21 @@ public class CommentControllerIT {
     private CommentDto sampleCommentDto;
     private Post samplePost;
 
+    private Map<String, String> headerValues = new HashMap<>();
+
     @BeforeEach
     public void setup(){
+        String authValue = Base64.getEncoder()
+                .encodeToString(new String("orlando:root").getBytes());
+        headerValues.put(AUTH_KEY, new StringBuilder()
+                .append(AUTH_TYPE)
+                .append(" ")
+                .append(authValue).toString());
+
         sampleCommentDto = new CommentDto();
         sampleCommentDto.setName("Name");
-        sampleCommentDto.setBody("Body");
-        sampleCommentDto.setEmail("Email");
+        sampleCommentDto.setBody("Body sample sample");
+        sampleCommentDto.setEmail("Email@email.com");
 
         samplePost = new Post();
         samplePost.setTitle("Title");
@@ -69,6 +83,7 @@ public class CommentControllerIT {
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.post("/api/posts/{postId}/comments",savedPost.getId())
                         .content(objectMapper.writeValueAsString(sampleCommentDto))
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY))
         );
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isCreated())
@@ -93,7 +108,8 @@ public class CommentControllerIT {
         commentRepository.saveAll(List.of(commentMapper.convertToComment(sampleCommentDto, savedPost), anotherComment));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{postId}/comments",savedPost.getId()));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{postId}/comments",savedPost.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.size()", CoreMatchers.is(2)))
@@ -110,7 +126,8 @@ public class CommentControllerIT {
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), savedComment.getId()));
+                .get("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), savedComment.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -138,7 +155,8 @@ public class CommentControllerIT {
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/posts/{postId}/comments/{commentId}",savedPost2.getId(), savedComment.getId()));
+                .get("/api/posts/{postId}/comments/{commentId}",savedPost2.getId(), savedComment.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -157,14 +175,15 @@ public class CommentControllerIT {
         CommentDto updatedCommentDto = commentMapper.convertToCommentDto(savedComment);
       
         updatedCommentDto.setName("Name2");
-        updatedCommentDto.setBody("Body2");
-        updatedCommentDto.setEmail("Email2");
+        updatedCommentDto.setBody("Body2 sample sample");
+        updatedCommentDto.setEmail("Email2@gmail.com");
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
                 .put("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), savedComment.getId())
                 .content(objectMapper.writeValueAsString(updatedCommentDto))
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY))
         );
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -185,7 +204,8 @@ public class CommentControllerIT {
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
-                .delete("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), savedComment.getId()));
+                .delete("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), savedComment.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andDo(MockMvcResultHandlers.print());
@@ -201,7 +221,8 @@ public class CommentControllerIT {
 
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders
-                .delete("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), wrongId));
+                .delete("/api/posts/{postId}/comments/{commentId}",savedPost.getId(), wrongId)
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
