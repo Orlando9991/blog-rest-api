@@ -21,12 +21,18 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Transactional
 public class PostControllerIT {
+
+    private final String AUTH_KEY = "Authorization";
+    private final String AUTH_TYPE = "Basic";
 
     @Autowired
     private MockMvc mockMvc;
@@ -42,8 +48,17 @@ public class PostControllerIT {
 
     private PostDto postDtoExample;
 
+    private Map<String, String> headerValues = new HashMap<>();
+
     @BeforeEach
     public void setup(){
+        String authValue = Base64.getEncoder()
+                .encodeToString(new String("maria:maria").getBytes());
+        headerValues.put(AUTH_KEY, new StringBuilder()
+                .append(AUTH_TYPE)
+                .append(" ")
+                .append(authValue).toString());
+
         postDtoExample = new PostDto();
         postDtoExample.setTitle("Title Demo");
         postDtoExample.setContent("Content Demo");
@@ -59,7 +74,8 @@ public class PostControllerIT {
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.post("/api/posts")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(postDtoExample)));
+                .content(objectMapper.writeValueAsString(postDtoExample))
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isCreated())
@@ -83,7 +99,8 @@ public class PostControllerIT {
         postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts")
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -102,10 +119,14 @@ public class PostControllerIT {
         postDtoExample2.setDescription("Description demo 2");
         postDtoExample2.setContent("Content demo 2");
 
-        postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
+        //postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
+        postRepository.save(postMapper.convertToPost(postDtoExample));
+        postRepository.save(postMapper.convertToPost(postDtoExample2));
+
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0")
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -127,7 +148,8 @@ public class PostControllerIT {
         postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title&sortDirection=asc"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0&sortBy=title&sortDirection=asc")
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -148,7 +170,8 @@ public class PostControllerIT {
         postRepository.saveAll(List.of(postMapper.convertToPost(postDtoExample), postMapper.convertToPost(postDtoExample2)));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0"));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts?pageSize=1&pageNo=0")
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -165,7 +188,8 @@ public class PostControllerIT {
         Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{id}", savedPost.getId()));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{id}", savedPost.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -183,7 +207,8 @@ public class PostControllerIT {
         Long incorrectId = -1L;
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{id}", incorrectId));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.get("/api/posts/{id}", incorrectId)
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -205,7 +230,8 @@ public class PostControllerIT {
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.put("/api/posts/{id}", savedPost.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedPost)));
+                .content(objectMapper.writeValueAsString(updatedPost))
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -232,7 +258,8 @@ public class PostControllerIT {
         //when - action ir the behaviour we are going to test
         ResultActions response = mockMvc.perform(MockMvcRequestBuilders.put("/api/posts/{id}", incorrectId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedPost)));
+                .content(objectMapper.writeValueAsString(updatedPost))
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isNotFound())
@@ -247,7 +274,8 @@ public class PostControllerIT {
         Post savedPost = postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", savedPost.getId()));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", savedPost.getId())
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isOk())
@@ -263,7 +291,8 @@ public class PostControllerIT {
         postRepository.save(postMapper.convertToPost(postDtoExample));
 
         //when - action ir the behaviour we are going to test
-        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", incorrectId));
+        ResultActions response = mockMvc.perform(MockMvcRequestBuilders.delete("/api/posts/{id}", incorrectId)
+                .header(AUTH_KEY, headerValues.get(AUTH_KEY)));
 
         //then  - verify the output
         response.andExpect(MockMvcResultMatchers.status().isNotFound())

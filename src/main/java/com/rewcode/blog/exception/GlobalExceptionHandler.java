@@ -8,7 +8,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,16 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    //Specific Exceptions
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorDetails> handleUserAlreadyExistsException(UserAlreadyExistsException e, WebRequest webRequest){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                e.getMessage(),
+                webRequest.getDescription(false)
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException e, WebRequest webRequest){
 

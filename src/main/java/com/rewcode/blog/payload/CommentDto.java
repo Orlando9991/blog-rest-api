@@ -14,7 +14,7 @@ public class CommentDto {
     private Long id;
 
     @NotEmpty(message = "Name should not be null or empty")
-    @Size(min = 10, message = "Comment name must be minimum 2 characters")
+    @Size(min = 2, message = "Comment name must be minimum 2 characters")
     private String name;
 
     @NotEmpty(message = "Email should not be null or empty")
