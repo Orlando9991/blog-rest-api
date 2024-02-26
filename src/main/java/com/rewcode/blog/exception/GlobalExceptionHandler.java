@@ -48,6 +48,16 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<ErrorDetails> handleTokenException(TokenException e, WebRequest webRequest){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                e.getMessage(),
+                webRequest.getDescription(false)
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationException(MethodArgumentNotValidException e, WebRequest webRequest){
 

@@ -8,6 +8,7 @@ import com.rewcode.blog.payload.LoginDto;
 import com.rewcode.blog.payload.RegisterDto;
 import com.rewcode.blog.repository.RoleRepository;
 import com.rewcode.blog.repository.UserRepository;
+import com.rewcode.blog.security.JwtTokenProvider;
 import com.rewcode.blog.service.AuthService;
 import com.rewcode.blog.utils.AppConstants;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,19 +28,21 @@ public class AuthServiceImpl implements AuthService {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
+    private JwtTokenProvider jwtTokenProvider;
     private UserMapper userMapper;
 
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
+                           RoleRepository roleRepository,
                            PasswordEncoder passwordEncoder,
-                           UserMapper userMapper,
-                           RoleRepository roleRepository) {
-
+                           JwtTokenProvider jwtTokenProvider,
+                           UserMapper userMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -47,7 +50,8 @@ public class AuthServiceImpl implements AuthService {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsernameOrEmail(), loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "User Logged-in successfully";
+        String token = jwtTokenProvider.generateToken(authentication);
+        return token;
     }
 
 
