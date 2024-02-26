@@ -1,5 +1,6 @@
 package com.rewcode.blog.controller;
 
+import com.rewcode.blog.payload.JWTAuthResponse;
 import com.rewcode.blog.payload.LoginDto;
 import com.rewcode.blog.payload.RegisterDto;
 import com.rewcode.blog.service.AuthService;
@@ -19,9 +20,13 @@ public class AuthController {
     }
 
     @PostMapping(value = {"/login", "/signin"})
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
-        String response = authService.login(loginDto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto){
+        String token = authService.login(loginDto);
+
+        JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
+        jwtAuthResponse.setAccessToken(token);
+
+        return ResponseEntity.ok(jwtAuthResponse);
     }
 
     @PostMapping(value = {"/register", "/signup"})
