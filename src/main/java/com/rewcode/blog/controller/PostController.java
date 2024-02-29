@@ -51,7 +51,7 @@ public class PostController {
         Set<PostDto> postDtoSet = postService.getPostsByCategory(categoryId);
         return ResponseEntity.ok(postDtoSet);
     }
-
+  
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public  ResponseEntity<PostDto> updatePost(@PathVariable Long id,  @RequestBody @Valid PostDto postDto){
