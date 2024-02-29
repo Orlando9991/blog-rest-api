@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/posts")
@@ -44,6 +45,13 @@ public class PostController {
         PostDto postDto = postService.getPostById(id);
         return ResponseEntity.ok(postDto);
     }
+
+    @GetMapping("/category/{id}")
+    public  ResponseEntity<Set<PostDto>> getPostByCategoryId(@PathVariable("id") Long categoryId){
+        Set<PostDto> postDtoSet = postService.getPostsByCategory(categoryId);
+        return ResponseEntity.ok(postDtoSet);
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public  ResponseEntity<PostDto> updatePost(@PathVariable Long id,  @RequestBody @Valid PostDto postDto){
