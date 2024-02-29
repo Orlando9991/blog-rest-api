@@ -2,6 +2,7 @@ package com.rewcode.blog.controller;
 
 import com.rewcode.blog.payload.CommentDto;
 import com.rewcode.blog.service.CommentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/posts/{postId}/comments")
+@Tag(
+        name = "CRUD REST APIs for Comments Resource"
+)
 public class CommentController {
 
     private CommentService commentService;
