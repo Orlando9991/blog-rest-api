@@ -79,12 +79,12 @@ public class PostController {
             responseCode = "200",
             description = "Http status 200 success"
     )
+
     @GetMapping("/category/{id}")
     public  ResponseEntity<Set<PostDto>> getPostByCategoryId(@PathVariable("id") Long categoryId){
         Set<PostDto> postDtoSet = postService.getPostsByCategory(categoryId);
         return ResponseEntity.ok(postDtoSet);
     }
-
 
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(
